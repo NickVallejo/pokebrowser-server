@@ -14,7 +14,11 @@ const userSchema = mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Trades',
     }
-  ]
+  ],
+  pokemon: {
+    type: Array,
+    default: []
+  }
 })
 
 module.exports = userSchema

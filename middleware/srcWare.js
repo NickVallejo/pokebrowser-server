@@ -6,38 +6,44 @@ const playerSrcWare = async(req, res, next) => {
         const query = new RegExp("^"+src, "i")
         
         //this line below pretends I'm authenticated
-        const user = await Users.findById('62214be563cb341df7259372')
-        const users = await Users.find({
-            $and: [
-                {username: query},
-                {username: {$ne: 'john'}}
-            ]
-        }).limit(10)
-        if(user && users){
-            const usersRes = await Promise.all(users.map(async userInQ => {
-                const {username, _id} = userInQ
-                let status
-                const found = userInQ.active_trades.find(el => {
-                    if(user.active_trades.includes(el))
-                    return el
-                })
+        const user = await Users.findById(req.userId)
 
-                if(!found) status = {status: 'inactive', iSent: undefined}
-                else{
-                    const trade = await Trades.findById(found).populate('requestor').populate('acceptor')
-                    //! We are checking for requestor/acceptors by username rn. We need to change back to objectId
-                    status = trade ? 
-                    {
-                        tradeId: trade._id, 
-                        status: trade.init_status, 
-                        iSent: trade.requestor._id === user._id
-                    } : {tradeId: false, status: 'inactive', iSent: undefined}
-                }
-                return {_id, username, active_trade: status}
-            }))
-            res.send(usersRes)
+        if(user){
+            const users = await Users.find({
+                $and: [
+                    {username: query},
+                    {username: {$ne: user.username}}
+                ]
+            }).limit(10)
+
+            if(users){
+                const usersRes = await Promise.all(users.map(async userInQ => {
+                    const {username, _id} = userInQ
+                    let status
+                    const found = userInQ.active_trades.find(el => {
+                        if(user.active_trades.includes(el))
+                        return el
+                    })
+    
+                    if(!found) status = {status: 'inactive'}
+                    else{
+                        const trade = await Trades.findById(found)
+                        status = trade ? 
+                        {
+                            tradeId: trade._id, 
+                            roomId: trade.room_id,
+                            status: trade.init_status, 
+                            iSent: trade.requestor.equals(user._id)
+                        } : {status: 'inactive'}
+                    }
+                    return {_id, username, active_trade: status}
+                }))
+                res.send({success: true, data: usersRes})
+            } else {
+                res.send({success: true, data: []})
+            }
         } else{
-            res.send([])
+            throw new Error('User Auth Failure.')
         }
     } catch(err){
         console.log(err)

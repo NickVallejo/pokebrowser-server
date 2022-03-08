@@ -4,20 +4,16 @@ const tradeSchema = mongoose.Schema({
     requestor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
-        // type: String,
-        // required: true
     },
     acceptor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
-        // type: String,
-        // required: true
     },
     init_status: {
         type: String,
         required: true
     },
-    room_url: {
+    room_id: {
         type: String,
         default: undefined
     },

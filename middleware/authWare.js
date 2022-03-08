@@ -1,7 +1,7 @@
 const {Users} = require("../config/db")
+const jwt = require('jsonwebtoken')
 
 const regWare = async(req, res, next) => {
-    console.log('REGWARE PINGU')
     let errs = []
     const {username, password, confirm} = req.body
 
@@ -38,14 +38,40 @@ const logWare = async(req, res, next) => {
         const user = await Users.findOne({username})
 
         if(user && user.password === password){
-            res.send({success: true})
+            const token = jwt.sign({id: user._id}, "secret", {
+                expiresIn: "1h",
+            })
+            req.userId = token.id
+            res.cookie("token", token)
+            res.send({success: true, data: {token, user}})
         } else{
             res.send({success: false, data: 'Invalid Login Credentials'})
         }
     } catch(err){
-        console.log('er caught the problem')
+        console.log(err.message)
         res.status(500).send({success: false, data: err})
     }
 }
 
-module.exports = {regWare, logWare}
+const logoutWare = (req, res, next) => {
+    const reqToken = req.cookies.token
+}
+
+const authWare = async(req, res, next) => {
+    const reqToken = req.cookies.token
+
+    if(!reqToken){
+        res.send({success: false})
+    } else{
+        try{
+            const resToken = await jwt.verify(reqToken, "secret")
+            req.userId = resToken.id
+            next()
+        } catch(err){
+            console.log(err.message)
+            res.status(500).send({success: false, data: err})
+        }
+    }
+}
+
+module.exports = {regWare, logWare, authWare, logoutWare}

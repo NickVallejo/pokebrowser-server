@@ -1,8 +1,10 @@
 const express = require("express")
 const trades = express.Router()
-const {deleteTradeWare, requestTradeWare} = require('../middleware/tradeWare')
+const {deleteTradeWare, requestTradeWare, acceptTradeWare} = require('../middleware/tradeWare')
+const {authWare} = require('../middleware/authWare')
 
-trades.delete('/', deleteTradeWare)
-trades.post('/', requestTradeWare)
+trades.delete('/', authWare, deleteTradeWare)
+trades.post('/', authWare, requestTradeWare)
+trades.put('/', authWare, acceptTradeWare)
 
 module.exports = trades
