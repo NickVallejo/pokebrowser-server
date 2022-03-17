@@ -17,10 +17,11 @@ const tradeSchema = mongoose.Schema({
         type: String,
         default: undefined
     },
-    createdAt: { 
+    expireAt: { 
         type: Date, 
-        expires: '1440m', 
-        default: Date.now 
+        require: true, 
+        default: Date.now, 
+        index: {expires: '1m'}
     }
 })
 

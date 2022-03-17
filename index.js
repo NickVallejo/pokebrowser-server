@@ -5,6 +5,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 require('./config/db')
+const {openIo} = require('./routes/sockets/traderoom-socket')
 
 //Middleware 
 app.use(express.json())
@@ -22,7 +23,15 @@ app.use('/api/auth', auth_route)
 app.use('/api/players', player_route)
 app.use('/api/trades', trade_route)
 
-app.listen(process.env.PORT, err => {
+const server = app.listen(process.env.PORT, err => {
     if(!err){console.log(`connected to port ${process.env.PORT}`)}
     else{console.log(err)}
 })
+
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "http://localhost:3000"
+    }
+})
+
+openIo(io)

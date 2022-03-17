@@ -28,13 +28,21 @@ const playerSrcWare = async(req, res, next) => {
                     if(!found) status = {status: 'inactive'}
                     else{
                         const trade = await Trades.findById(found)
-                        status = trade ? 
-                        {
-                            tradeId: trade._id, 
-                            roomId: trade.room_id,
-                            status: trade.init_status, 
-                            iSent: trade.requestor.equals(user._id)
-                        } : {status: 'inactive'}
+                        if(trade){
+                            status = {
+                                tradeId: trade._id, 
+                                roomId: trade.room_id,
+                                status: trade.init_status, 
+                                iSent: trade.requestor.equals(user._id)
+                            }
+                        } else{
+                            await Users.updateMany(
+                                {active_trades: {$in: found}},
+                                {$pull: {active_trades: found}}
+                            )
+                            status = {status: 'inactive'}
+                        }
+
                     }
                     return {_id, username, active_trade: status}
                 }))

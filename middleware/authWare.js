@@ -39,7 +39,7 @@ const logWare = async(req, res, next) => {
 
         if(user && user.password === password){
             const token = jwt.sign({id: user._id}, "secret", {
-                expiresIn: "1h",
+                expiresIn: "1m",
             })
             req.userId = token.id
             res.cookie("token", token)
@@ -68,8 +68,11 @@ const authWare = async(req, res, next) => {
             req.userId = resToken.id
             next()
         } catch(err){
-            console.log(err.message)
-            res.status(500).send({success: false, data: err})
+            if(err.name === 'TokenExpiredError'){
+                res.status(200).send({success: false, data: err})
+            } else{
+                res.status(500).send({success: false, data: err})
+            }
         }
     }
 }
