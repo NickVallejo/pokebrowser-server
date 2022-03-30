@@ -10,4 +10,21 @@ const pokemonSaveWare = async(req, res, next) => {
     }
 }
 
-module.exports = {pokemonSaveWare}
+const ballManageWare = async(req, res, next) => {
+    try{
+        const {add} = req.body
+        console.log(add)
+        if(add){
+            console.log('ADDING')
+            await Users.findByIdAndUpdate(req.userId, {$inc: {'pokeballs': 1}})
+        } else{
+            console.log('DECREASING')
+            await Users.findByIdAndUpdate(req.userId, {$inc: {'pokeballs': -1}})
+        }
+        res.send({success: true})
+    } catch(err){
+        res.status(err).send({success: false})
+    }
+}
+
+module.exports = {pokemonSaveWare, ballManageWare}

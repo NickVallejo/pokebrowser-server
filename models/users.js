@@ -1,5 +1,20 @@
 const mongoose = require("mongoose")
 
+const pokeballSchema = mongoose.Schema({
+  pokeballs: {
+    type: Number,
+    default: 10
+  },
+  greatBalls: {
+    type: Number,
+    default: 0
+  },
+  ultraBalls: {
+    type: Number,
+    default: 0
+  },
+})
+
 const userSchema = mongoose.Schema({
   username: {
     type: String,
@@ -18,6 +33,10 @@ const userSchema = mongoose.Schema({
   pokemon: {
     type: Array,
     default: []
+  },
+  pokeballs: {
+    type: Number,
+    default: 10
   }
 })
 

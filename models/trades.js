@@ -21,7 +21,7 @@ const tradeSchema = mongoose.Schema({
         type: Date, 
         require: true, 
         default: Date.now, 
-        index: {expires: '1m'}
+        index: {expires: '1440m'}
     }
 })
 

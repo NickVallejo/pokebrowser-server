@@ -41,10 +41,9 @@ const requestTradeWare = async(req, res, next) => {
                     init_status: 'pending',
                     room_id: uuidv4()
                 })
-            
+
                 newTrade.save()
                 .then(async trade => {
-                    
                     const savedUsers = await Promise.all(tradeUsers.map(async user => {
                         user.active_trades.push(trade._id)
                         const savedUser = await user.save()

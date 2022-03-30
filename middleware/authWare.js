@@ -9,9 +9,9 @@ const regWare = async(req, res, next) => {
         const user = await Users.findOne({username})
         if(user){errs.push('Username taken.')}
         if(username.length > 14){errs.push('Username too long.')}
-        if(password != confirm){errs.push('Password do not match.')}
+        if(password != confirm){errs.push('Passwords do not match.')}
         if(errs.length > 0){
-            res.send({success: false, data: errs})
+            res.send({success: false, data: errs[0]})
         } else{
             const newUser = new Users({
                 username,
@@ -19,8 +19,12 @@ const regWare = async(req, res, next) => {
             })
             newUser.save()
             .then(user => {
-                console.log(user)
-                res.send({success: true, data: user})
+                const token = jwt.sign({id: user._id}, "secret", {
+                    expiresIn: "1440m",
+                })
+                req.userId = token.id
+                res.cookie("token", token)
+                res.send({success: true})
             })
             .catch(err => {throw err})
         }
@@ -28,7 +32,6 @@ const regWare = async(req, res, next) => {
         console.log(err)
         res.send({success: false, data: err})
     }
-
 }
 
 const logWare = async(req, res, next) => {
@@ -39,22 +42,18 @@ const logWare = async(req, res, next) => {
 
         if(user && user.password === password){
             const token = jwt.sign({id: user._id}, "secret", {
-                expiresIn: "1m",
+                expiresIn: "1440m",
             })
             req.userId = token.id
             res.cookie("token", token)
-            res.send({success: true, data: {token, user}})
+            res.send({success: true})
         } else{
-            res.send({success: false, data: 'Invalid Login Credentials'})
+            res.send({success: false, data: 'Invalid Login Credentials.'})
         }
     } catch(err){
         console.log(err.message)
         res.status(500).send({success: false, data: err})
     }
-}
-
-const logoutWare = (req, res, next) => {
-    const reqToken = req.cookies.token
 }
 
 const authWare = async(req, res, next) => {
@@ -77,4 +76,4 @@ const authWare = async(req, res, next) => {
     }
 }
 
-module.exports = {regWare, logWare, authWare, logoutWare}
+module.exports = {regWare, logWare, authWare}
