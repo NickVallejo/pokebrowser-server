@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const regWare = async(req, res, next) => {
     let errs = []
     const {username, password, confirm} = req.body
-
+    console.log(username, password, confirm)
     try{
         const user = await Users.findOne({username})
         if(user){errs.push('Username taken.')}

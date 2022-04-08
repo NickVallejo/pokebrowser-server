@@ -2,8 +2,19 @@ const {Users} = require("../config/db")
 
 const pokemonSaveWare = async(req, res, next) => {
     try{
-        const {poke} = req.body
+        const poke = req.body
         const user = await Users.findByIdAndUpdate(req.userId, {$push: {pokemon: poke}})
+        res.send({success: true})
+    } catch(err){
+        res.status(err.response.status).send({success: false})
+    }
+}
+
+const pokemonRemoveWare = async(req, res, next) => {
+    try{
+        const {id} = req.body
+        console.log(id)
+        const poke = await Users.findByIdAndUpdate(req.userId, {"$pull": {"pokemon": {"id": id}}})
         res.send({success: true})
     } catch(err){
         res.status(err.response.status).send({success: false})
@@ -27,4 +38,4 @@ const ballManageWare = async(req, res, next) => {
     }
 }
 
-module.exports = {pokemonSaveWare, ballManageWare}
+module.exports = {pokemonSaveWare, pokemonRemoveWare, ballManageWare}
